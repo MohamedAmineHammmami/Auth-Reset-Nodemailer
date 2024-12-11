@@ -4,18 +4,20 @@ import dbConnection from "./database/db.js";
 import session from "express-session";
 import ConnectMongoDBSession from "connect-mongodb-session";
 import authRouter from "./routes/authRoutes.js";
-
+import passRouter from "./routes/passRoutes.js";
 dotenv.config();
 const port = process.env.PORT;
 const mongoDbStore = ConnectMongoDBSession(session);
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 //session store
 const store = mongoDbStore({
   uri: process.env.MONGO_DB_URI,
   collection: "sessions",
 });
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 //session middleware
 app.use(
   session({
@@ -30,6 +32,7 @@ app.use(
   })
 );
 app.use("/api/auth", authRouter);
+app.use("/password", passRouter);
 
 //error middlewares
 app.use((req, res, next) => {
